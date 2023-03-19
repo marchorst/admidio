@@ -195,7 +195,8 @@ class HtmlForm extends HtmlElement
     public function addButton($id, $text, array $options = array())
     {
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,
+        $optionsDefault = array(
+            'formtype' => $this->type,
             'icon' => '',
             'link' => '',
             'class' => '',
