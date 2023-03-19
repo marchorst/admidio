@@ -192,7 +192,7 @@ class HtmlForm extends HtmlFormBasic
         $attributes['data-admidio'] = $optionsAll['data-admidio'];
         ++$this->countElements;
 
-        if(strstr($attributes['class'], ' btn ') === false) {
+        if (strstr($attributes['class'], ' btn ') === false) {
             $attributes['class'] = "btn btn-secondary " . $optionsAll['class'];
 
             if ($this->type !== 'navbar') {
@@ -231,7 +231,6 @@ class HtmlForm extends HtmlFormBasic
             '',
             array('property' => self::FIELD_REQUIRED, 'helpTextIdLabel' => 'SYS_CAPTCHA_DESCRIPTION', 'class' => 'form-control-small')
         );
-
     }
 
     /**
@@ -266,7 +265,8 @@ class HtmlForm extends HtmlFormBasic
         ++$this->countElements;
 
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,
+        $optionsDefault = array(
+            'formtype' => $this->type,
             'property'         => self::FIELD_DEFAULT,
             'helpTextIdLabel'  => '',
             'helpTextIdInline' => '',
@@ -326,7 +326,8 @@ class HtmlForm extends HtmlFormBasic
     public function addCustomContent($label, $content, array $options = array())
     {
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,
+        $optionsDefault = array(
+            'formtype' => $this->type,
             'property'         => '',
             'referenceId'      => '',
             'helpTextIdLabel'  => '',
@@ -339,8 +340,6 @@ class HtmlForm extends HtmlFormBasic
         $optionsAll = array_replace($optionsDefault, $options);
 
         $this->addHtml($this->render('form.customcontent', $optionsAll));
-
-
     }
 
     /**
@@ -388,7 +387,8 @@ class HtmlForm extends HtmlFormBasic
         ++$this->countElements;
 
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,
+        $optionsDefault = array(
+            'formtype' => $this->type,
             'property'         => self::FIELD_DEFAULT,
             'toolbar'          => 'AdmidioDefault',
             'height'           => '300',
@@ -479,7 +479,8 @@ class HtmlForm extends HtmlFormBasic
         ++$this->countElements;
 
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,
+        $optionsDefault = array(
+            'formtype' => $this->type,
             'property'           => self::FIELD_DEFAULT,
             'maxUploadSize'      => $gSettingsManager->getInt('max_file_upload_size') * 1024 * 1024, // MiB
             'allowedMimeTypes'   => array(),
@@ -581,7 +582,8 @@ class HtmlForm extends HtmlFormBasic
         ++$this->countElements;
 
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,
+        $optionsDefault = array(
+            'formtype' => $this->type,
             'id'               => $id,
             'label'            => $label,
             'value'            => $value,
@@ -801,7 +803,8 @@ class HtmlForm extends HtmlFormBasic
         $attributes = array('class' => 'form-control');
 
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,
+        $optionsDefault = array(
+            'formtype' => $this->type,
             'property'         => self::FIELD_DEFAULT,
             'maxLength'        => 0,
             'helpTextIdLabel'  => '',
@@ -901,7 +904,8 @@ class HtmlForm extends HtmlFormBasic
         $attributes = array('class' => '');
 
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,
+        $optionsDefault = array(
+            'formtype' => $this->type,
             'property'          => self::FIELD_DEFAULT,
             'defaultValue'      => '',
             'showNoValueButton' => false,
@@ -991,7 +995,8 @@ class HtmlForm extends HtmlFormBasic
         $name = $id;
 
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,
+        $optionsDefault = array(
+            'formtype' => $this->type,
             'property'                       => self::FIELD_DEFAULT,
             'defaultValue'                   => '',
             'showContextDependentFirstEntry' => true,
@@ -1390,7 +1395,8 @@ class HtmlForm extends HtmlFormBasic
         global $gCurrentOrganization, $gCurrentUser, $gL10n;
 
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,
+        $optionsDefault = array(
+            'formtype' => $this->type,
             'property'                       => self::FIELD_DEFAULT,
             'defaultValue'                   => '',
             'arrayKeyIsNotValue'             => false,
@@ -1410,14 +1416,14 @@ class HtmlForm extends HtmlFormBasic
 
             $this->addJavascriptCode(
                 '
-                $("#'.$id.'").change(function() {
+                $("#' . $id . '").change(function() {
                     if($("option:selected", this).attr("data-global") == 1) {
-                        $("#'.$id.'_alert").show("slow");
+                        $("#' . $id . '_alert").show("slow");
                     } else {
-                        $("#'.$id.'_alert").hide();
+                        $("#' . $id . '_alert").hide();
                     }
                 });
-                $("#'.$id.'").trigger("change");',
+                $("#' . $id . '").trigger("change");',
                 true
             );
         }
@@ -1553,7 +1559,7 @@ class HtmlForm extends HtmlFormBasic
         ++$this->countElements;
 
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,'property' => '', 'helpTextIdLabel' => '', 'helpTextIdInline' => '', 'icon' => '', 'class' => '');
+        $optionsDefault = array('formtype' => $this->type, 'property' => '', 'helpTextIdLabel' => '', 'helpTextIdInline' => '', 'icon' => '', 'class' => '');
         $optionsAll     = array_replace($optionsDefault, $options);
 
         // set specific css class for this field
@@ -1586,7 +1592,7 @@ class HtmlForm extends HtmlFormBasic
     public function addSubmitButton($id, $text, array $options = array())
     {
         // create array with all options
-        $optionsDefault = array('formtype' => $this->type,'icon' => '', 'link' => '', 'class' => '', 'type' => 'submit');
+        $optionsDefault = array('formtype' => $this->type, 'icon' => '', 'link' => '', 'class' => '', 'type' => 'submit');
         $optionsAll     = array_replace($optionsDefault, $options);
 
         // add default css classes
