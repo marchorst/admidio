@@ -30,7 +30,7 @@
  * $form->show();
  * ```
  */
-class HtmlForm extends HtmlFormBasic
+class HtmlForm extends HtmlElement
 {
     public const FIELD_DEFAULT  = 0;
     public const FIELD_REQUIRED = 1;
@@ -94,7 +94,7 @@ class HtmlForm extends HtmlFormBasic
      *                           - **class** : An additional css classname. The class **form-horizontal**
      *                             is set as default and need not set with this parameter.
      */
-    public function __construct($id, $action = null, HtmlPage $htmlPage = null, array $options = array())
+    public function __construct($id, $action = null, HtmlPage $htmlPage = null, array $options = array(), $event = null, $script = null)
     {
         // create array with all options
         $optionsDefault = array(
@@ -113,7 +113,26 @@ class HtmlForm extends HtmlFormBasic
 
         $optionsAll = array_replace($optionsDefault, $options);
 
-        parent::__construct($action, $id, $optionsAll['method']);
+        $method = $optionsAll['method'];
+
+        parent::__construct('form');
+
+        // set action attribute
+        if ($action !== null) {
+            $this->addAttribute('action', $action);
+        }
+
+        if ($id !== null) {
+            $this->addAttribute('id', $id);
+        }
+
+        if ($method !== null) {
+            $this->addAttribute('method', $method);
+        }
+
+        if ($event !== null && $script !== null) {
+            $this->addAttribute($event, $script);
+        }
 
         $this->showRequiredFields = $optionsAll['showRequiredFields'];
         $this->type = $optionsAll['type'];
@@ -150,7 +169,7 @@ class HtmlForm extends HtmlFormBasic
         }
 
         if ($htmlPage instanceof HtmlPage) {
-            $this->htmlPage =& $htmlPage;
+            $this->htmlPage = &$htmlPage;
         }
 
         // if it's not a navbar form and not a static form then first field of form should get focus
@@ -1884,5 +1903,256 @@ class HtmlForm extends HtmlFormBasic
         $html .= $this->getHtmlForm();
 
         return $html;
+    }
+
+    /**
+     * Add a fieldset.
+     * @param string $legend Description for optional legend element as string
+     * @param string $id     Optional ID
+     */
+    public function addFieldSet($legend = null, $id = null)
+    {
+        if ($id !== null) {
+            $this->addParentElement('fieldset');
+        } else {
+            $this->addParentElement('fieldset', 'id', $id);
+        }
+
+        if ($legend !== null) {
+            $this->addLegend($legend);
+        }
+    }
+
+    /**
+     * Add an input field with attribute properties.
+     * @param string               $type          Type of input field e.g. 'text'
+     * @param string               $name          Name of the input field
+     * @param string               $id            Optional ID for the input
+     * @param string               $value         Value of the field (Default: empty)
+     * @param array<string,string> $arrAttributes Further attributes as array with key/value pairs
+     */
+    public function addSimpleInput($type, $name, $id = null, $value = '', array $arrAttributes = [])
+    {
+        $data = [
+            'type' => $type,
+            'name' => $name,
+            'id' => $id,
+            'value' => $value
+        ];
+        $data = array_merge($data, $arrAttributes);
+
+        $data = array_filter($data);
+
+        $this->addHtml($this->render('form.input.simple', ["attributes" => $data]));
+    }
+
+    /**
+     * Add a label to the input field.
+     * @param string $string Value of the label as string
+     * @param string $refId
+     * @param string $attribute
+     */
+    public function addLabel($string = '', $refId = null, $attribute = 'for')
+    {
+        $this->addElement('label');
+
+        if ($refId !== null) {
+            $this->addAttribute($attribute, $refId);
+        }
+        $this->addData($string);
+    }
+
+    /**
+     * Add a legend element in current fieldset.
+     * @param string $legend Data for the element as string
+     */
+    public function addLegend($legend)
+    {
+        $this->addElement('legend', '', '', $legend);
+    }
+
+    /**
+     * Add inline element into current division.
+     * @param string               $value         Option value
+     * @param string               $label         Label of the option
+     * @param string               $id            Optional Id of the option
+     * @param bool                 $selected      Mark as selected (Default: false)
+     * @param bool                 $disable       Disable option (optional)
+     * @param array<string,string> $arrAttributes Further attributes as array with key/value pairs
+     */
+    public function addOption($value, $label, $id = null, $selected = false, $disable = false, array $arrAttributes = null)
+    {
+        $this->addElement('option');
+        // set attributes
+        $this->addAttribute('value', $value);
+
+        if ($id !== null) {
+            $this->addAttribute('id', $id);
+        }
+
+        if ($selected) {
+            $this->addAttribute('selected', 'selected');
+        }
+
+        if ($disable) {
+            $this->addAttribute('disabled', 'disabled');
+        }
+
+        // Check optional attributes in associative array and set all attributes
+        if ($arrAttributes !== null) {
+            $this->setAttributesFromArray($arrAttributes);
+        }
+
+        // add label
+        $this->addData($label);
+    }
+
+    /**
+     * Add an option group.
+     * @param string               $label         Label of the option group
+     * @param string               $id            Optional Id of the group
+     * @param bool                 $disable       Disable option group (Default: false)
+     * @param array<string,string> $arrAttributes Further attributes as array with key/value pairs
+     */
+    public function addOptionGroup($label, $id = null, $disable = false, array $arrAttributes = null)
+    {
+        $this->addParentElement('optgroup');
+
+        // set attributes
+        $this->addAttribute('label', $label);
+
+        if ($id !== null) {
+            $this->addAttribute('id', $id);
+        }
+
+        // Check optional attributes in associative array and set all attributes
+        if ($arrAttributes !== null) {
+            $this->setAttributesFromArray($arrAttributes);
+        }
+
+        if ($disable) {
+            $this->addAttribute('disabled', 'disabled');
+        }
+    }
+
+    /**
+     * Add an option group.
+     * @param string               $name          Name of the select
+     * @param string               $id            Optional Id of the select
+     * @param array<string,string> $arrAttributes Further attributes as array with key/value pairs
+     * @param bool                 $disable       Disable select (Default: false)
+     */
+    public function addSelect($name, $id = null, array $arrAttributes = null, $disable = false)
+    {
+        $this->addParentElement('select', 'name', $name);
+
+        // set attributes
+        if ($id !== null) {
+            $this->addAttribute('id', $id);
+        }
+
+        // Check optional attributes in associative array and set all attributes
+        if ($arrAttributes !== null) {
+            $this->setAttributesFromArray($arrAttributes);
+        }
+
+        if ($disable) {
+            $this->addAttribute('disabled', 'disabled');
+        }
+    }
+
+    /**
+     * Adds a button to the form.
+     * @param string $name  Name of the button
+     * @param string $type  Type attribute (Allowed: submit, reset, button (Default: button))
+     * @param string $value Value of the button
+     * @param string $id    Optional ID for the button
+     * @param string $link  If set a javascript click event with a page load to this link
+     *                      will be attached to the button.
+     */
+    public function addSimpleButton($name, $type, $value, $id = null, $link = null)
+    {
+        $this->addElement('button');
+
+        if ($id !== null) {
+            $this->addAttribute('id', $id);
+        }
+
+        // if link is set then add a onclick event
+        if ($link !== null) {
+            $this->addAttribute('onclick', 'self.location.href=\'' . $link . '\'');
+        }
+
+        $this->addAttribute('name', $name);
+        $this->addAttribute('type', $type);
+        $this->addData($value);
+    }
+
+    /**
+     * Add a text area.
+     * @param string               $name          Name of the text area
+     * @param int                  $rows          Number of rows
+     * @param int                  $cols          Number of cols
+     * @param string               $text          Text as content
+     * @param string               $id            Optional Id
+     * @param array<string,string> $arrAttributes Further attributes as array with key/value pairs
+     * @param bool                 $disable       Disable text area (Default: false)
+     */
+    public function addTextArea($name, $rows, $cols, $text = '', $id = null, array $arrAttributes = null, $disable = false)
+    {
+        $this->addElement('textarea');
+
+        // set attributes
+        $this->addAttribute('name', $name);
+        $this->addAttribute('rows', (string) $rows);
+        $this->addAttribute('cols', (string) $cols);
+
+        if ($id !== null) {
+            $this->addAttribute('id', $id);
+        }
+
+        // Check optional attributes in associative array and set all attributes
+        if ($arrAttributes !== null) {
+            $this->setAttributesFromArray($arrAttributes);
+        }
+
+        if ($disable) {
+            $this->addAttribute('disabled', 'disabled');
+        }
+
+        $this->addData($text);
+    }
+
+    /**
+     * @par Close current fieldset.
+     */
+    public function closeFieldSet()
+    {
+        $this->closeParentElement('fieldset');
+    }
+
+    /**
+     * @par Close current option group.
+     */
+    public function closeOptionGroup()
+    {
+        $this->closeParentElement('optgroup');
+    }
+
+    /**
+     * @par Close current select.
+     */
+    public function closeSelect()
+    {
+        $this->closeParentElement('select');
+    }
+
+    /**
+     * Get the full parsed html form
+     * @return string Returns the validated html form as string
+     */
+    public function getHtmlForm()
+    {
+        return $this->getHtmlElement();
     }
 }
